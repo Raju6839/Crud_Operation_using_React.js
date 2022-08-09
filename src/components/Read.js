@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 const Read = () => {
   const [data, setData] = useState([]);
   const [tabledark, setTableDark] = useState("");
+  const [inputText, setInputText] = useState("");
 
   function getData() {
     axios
@@ -33,6 +34,10 @@ const Read = () => {
     getData();
   }, []);
 
+  const inputHandler = (e) => {
+    setInputText(e.target.value.toLowerCase());
+  };
+
   getData();
   return (
     <>
@@ -48,6 +53,14 @@ const Read = () => {
       </div>
       <div className="d-flex justify-content-between m-2">
         <h2>Read--Operation</h2>
+        <div>
+          <input
+            type="email"
+            className="form-control"
+            placeholder="Type here.."
+            onChange={inputHandler}
+          />
+        </div>
         <Link to="/">
           <button className="btn btn-secondary">Create</button>
         </Link>
@@ -63,43 +76,49 @@ const Read = () => {
           </tr>
         </thead>
         {/* loop use karenge uske liye table heading fixed rahega sirf table data dynamically update hoga. you can see below*/}
-        {data.map((eachData) => {
-          return (
-            <>
-              <tbody>
-                <tr>
-                  <th scope="row">{eachData.id}</th>
-                  <td>{eachData.name}</td>
-                  <td>{eachData.email}</td>
-                  <td>
-                    <Link to="/update">
+        {data.filter((el) => {
+            if (el === "") {
+              return el
+            } else {
+              return el.name.toLowerCase().includes(inputText) || el.email.toLowerCase().includes(inputText);
+            }
+          }).map((eachData) => {
+            return (
+              <>
+                <tbody>
+                  <tr>
+                    <th scope="row">{eachData.id}</th>
+                    <td>{eachData.name}</td>
+                    <td>{eachData.email}</td>
+                    <td>
+                      <Link to="/update">
+                        <button
+                          className="btn btn-success"
+                          onClick={() =>
+                            setToLocalStorage(
+                              eachData.id,
+                              eachData.name,
+                              eachData.email
+                            )
+                          }
+                        >
+                          Edit{" "}
+                        </button>
+                      </Link>
+                    </td>
+                    <td>
                       <button
-                        className="btn btn-success"
-                        onClick={() =>
-                          setToLocalStorage(
-                            eachData.id,
-                            eachData.name,
-                            eachData.email
-                          )
-                        }
+                        className="btn btn-danger"
+                        onClick={() => handleDelete(eachData.id)}
                       >
-                        Edit{" "}
+                        Delete
                       </button>
-                    </Link>
-                  </td>
-                  <td>
-                    <button
-                      className="btn btn-danger"
-                      onClick={() => handleDelete(eachData.id)}
-                    >
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-            </>
-          );
-        })}
+                    </td>
+                  </tr>
+                </tbody>
+              </>
+            );
+          })}
       </table>
     </>
   );
